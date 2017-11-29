@@ -6,13 +6,15 @@
 """
 
 import csv
-
+import logging
+import logging.config
 import numpy as np
 import pandas as pd
 from sklearn import svm
 from sklearn.metrics import auc
 from sklearn.metrics import roc_curve
-
+logging.config.fileConfig("logger.conf")
+log = logging.getLogger("example01")
 
 def readData(fileName):
     """
@@ -84,22 +86,26 @@ def dataPredeal(data):
     convertData(data["Embarked"])
 
 
-def getX(data):
+def getX(data, ignores=None):
     """
     将所有不在ignores字典里的key添加到x二维数组内
+    :param ignores: 标签中忽略的特征
     :param data: {key1:[],key2:[]……}
     :return:[[a1,b1,c1,d1……][a2,b2,c2,d2……]……],{feature1:1,feature2:1}
     """
     x = []
-    ignores = {"PassengerId": 1, "Survived": 1, "Name": 1, "Ticket": 1, "Cabin": 1, "Fare": 1, "Embarked": 1}
+    if ignores is None:
+        ignores = {"PassengerId": 1, "Survived": 1, "Name": 1, "Ticket": 1, "Cabin": 1, "Fare": 1, "Embarked": 1}
     selected_features = {}
     for i in range(len(data["PassengerId"])):
         x.append([])
         for j in range(len(data["attr_list"])):
             key = data["attr_list"][j]
             if not ignores.has_key(key):
-                x[i].append(data[key][i])
                 selected_features[key] = 1
+                if "Age" == key:
+                    data[key][i] /= 10
+                x[i].append(int(data[key][i]))
     return x, selected_features
 
 
@@ -135,13 +141,13 @@ if __name__ == "__main__":
     rows = dataSet.head(1)
     for i in rows:
         # Age 做单独分析
-        if i not in ('PassengerId', 'Survived', 'Name', 'Cabin', 'Age', 'Ticket', 'Fare'):
+        if i not in ('PassengerId', 'Survived', 'Name', 'Cabin', 'Ticket', 'Fare'):
             # 建立透视表。index表示关心的变量(也就是特征)，values是最终关注的结果。aggfunc是聚合函数，针对values建立的各种聚合函数
             print pd.pivot_table(dataSet, index=i, values='Survived', aggfunc=[np.sum, len, np.mean])
     print pd.pivot_table(dataSet, index='Pclass', values='Survived', aggfunc=[np.sum, len, np.mean])
 
-    data = readData('train.csv')
-    test_data = readData('test.csv')
+    data = readData('../Titanic/data/train.csv')
+    test_data = readData('../Titanic/data/test.csv')
     dataPredeal(data)
     dataPredeal(test_data)
     x, features = getX(data)

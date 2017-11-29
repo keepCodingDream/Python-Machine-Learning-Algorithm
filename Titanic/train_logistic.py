@@ -32,7 +32,7 @@ def loadData(file_name, label_index):
 
 
 if __name__ == "__main__":
-    feature, data_matrix, label = loadData("train.csv", label_index=1)
+    feature, data_matrix, label = loadData("../Titanic/data/train.csv", label_index=1)
     lr_train = LogisticRegression()
     choose_feature_list = ["Sex", "Age", "Fare"]
     data_list = []
