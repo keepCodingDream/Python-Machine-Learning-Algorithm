@@ -11,6 +11,7 @@ import math
 import pandas as pd
 from sklearn import ensemble
 from sklearn import model_selection
+from sklearn import svm
 from sklearn.externals import joblib
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
@@ -119,8 +120,35 @@ def train_random_forest(data, label):
     print 'Sample 25 Features from RF Classifier:'
     print str(features_top_n_rf[:])
     scores = cross_val_score(rf_grid, data, label, cv=5)
-    print "Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2)
+    print "RandomForestClassifier Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2)
     joblib.dump(rf_grid, "../Titanic/model/Survived_GradientBoostingRegressor.m")
+
+
+def train_svm(data, label):
+    # model 2 svm
+    clf = svm.SVC()  # class
+    clf = clf.fit(data, label)
+    scores = cross_val_score(clf, data, label, cv=5)
+    print "SVM Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2)
+    joblib.dump(clf, "../Titanic/model/Survived_SVM.m")
+
+
+def train_voting_classifer(data, label):
+    rf_est = ensemble.RandomForestClassifier(n_estimators=750, criterion='gini', max_features='sqrt',
+                                             max_depth=3, min_samples_split=4, min_samples_leaf=2,
+                                             n_jobs=50, random_state=42, verbose=1)
+    gbm_est = ensemble.GradientBoostingClassifier(n_estimators=900, learning_rate=0.0008, loss='exponential',
+                                                  min_samples_split=3, min_samples_leaf=2, max_features='sqrt',
+                                                  max_depth=3, random_state=42, verbose=1)
+    et_est = ensemble.ExtraTreesClassifier(n_estimators=750, max_features='sqrt', max_depth=35, n_jobs=50,
+                                           criterion='entropy', random_state=42, verbose=1)
+    voting_est = ensemble.VotingClassifier(estimators=[('rf', rf_est), ('gbm', gbm_est), ('et', et_est)],
+                                           voting='soft', weights=[3, 5, 2],
+                                           n_jobs=50)
+    clf = voting_est.fit(data, label)
+    scores = cross_val_score(clf, data, label, cv=5)
+    print "voting_est Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2)
+    joblib.dump(clf, "../Titanic/model/Survived_Final.m")
 
 
 def writeData(fileName, data):
@@ -165,14 +193,21 @@ if __name__ == "__main__":
     dataSet_train.loc[(dataSet_train['Age'] > 32) & (dataSet_train['Age'] <= 48), 'Age'] = 2
     dataSet_train.loc[(dataSet_train['Age'] > 48) & (dataSet_train['Age'] <= 64), 'Age'] = 3
     dataSet_train.loc[dataSet_train['Age'] > 64, 'Age'] = 4
-    train_random_forest(dataSet_train, label)
+    # train_random_forest(dataSet_train, label)
+    train_svm(dataSet_train, label)
+    train_voting_classifer(dataSet_train, label)
     # 4 final get result
     dataSet_test = pd.read_csv('../Titanic/data/test.csv')
     passengerId = dataSet_test['PassengerId']
     dataSet_test = extractTitleByName(dataSet_test)
     dataSet_test = normalizationParams(dataSet_test)
     dataSet_test = fillTheMissingAge(dataSet_test)
-    final_model = joblib.load("../Titanic/model/Survived_GradientBoostingRegressor.m")
+    dataSet_test.loc[dataSet_test['Age'] <= 16, 'Age'] = 0
+    dataSet_test.loc[(dataSet_test['Age'] > 16) & (dataSet_test['Age'] <= 32), 'Age'] = 1
+    dataSet_test.loc[(dataSet_test['Age'] > 32) & (dataSet_test['Age'] <= 48), 'Age'] = 2
+    dataSet_test.loc[(dataSet_test['Age'] > 48) & (dataSet_test['Age'] <= 64), 'Age'] = 3
+    dataSet_test.loc[dataSet_test['Age'] > 64, 'Age'] = 4
+    final_model = joblib.load("../Titanic/model/Survived_Final.m")
     result = final_model.predict(dataSet_test)
     dataSet_test['PassengerId'] = passengerId
     res = [[dataSet_test["PassengerId"][i], result[i]] for i in range(len(result))]
