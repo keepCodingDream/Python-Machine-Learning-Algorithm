@@ -1,3 +1,6 @@
 /.ipynb_checkpoints/**
 .idea/**
 _config*.py
+*.DS_Store
+*.m
+

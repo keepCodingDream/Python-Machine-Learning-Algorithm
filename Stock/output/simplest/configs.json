@@ -1,0 +1,13 @@
+{"remote.trade.username": "18217749394",
+"end_date": 20171030,
+"universe": "000807.SH",
+"init_balance": 100000000.0,
+"benchmark": "000300.SH",
+"period": "month",
+"remote.data.address": "tcp://data.tushare.org:8910",
+"remote.trade.password": "eyJhbGciOiJIUzI1NiJ9.eyJjcmVhdGVfdGltZSI6IjE1MTM0OTQzNTc1MjAiLCJpc3MiOiJhdXRoMCIsImlkIjoiMTgyMTc3NDkzOTQifQ.qfA3NME64zIh-cTh-_UvWW4IwnuvBT6GzgBCzCAiVDg",
+"remote.data.password": "eyJhbGciOiJIUzI1NiJ9.eyJjcmVhdGVfdGltZSI6IjE1MTM0OTQzNTc1MjAiLCJpc3MiOiJhdXRoMCIsImlkIjoiMTgyMTc3NDkzOTQifQ.qfA3NME64zIh-cTh-_UvWW4IwnuvBT6GzgBCzCAiVDg",
+"position_ratio": 1.0,
+"remote.trade.address": "tcp://gw.quantos.org:8901",
+"start_date": 20170101,
+"remote.data.username": "18217749394"}
