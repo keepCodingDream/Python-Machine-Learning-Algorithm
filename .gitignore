@@ -3,4 +3,6 @@
 _config*.py
 *.DS_Store
 *.m
-
+*.pyc
+.idea/
+*/data/
