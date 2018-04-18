@@ -154,8 +154,8 @@ df_agg_sess.index = df_agg_sess.id
 print('Working on users data...')
 # concat and fill na
 print('Shape train_users = %s, Shape test_users = %s' % (train_users.shape, test_users.shape))
-df_tt = pd.concat(train_users, test_users, ignore_index=True)
-print('Shape df_tt = %s' % df_tt.shape)
+df_tt = pd.concat([train_users, test_users], ignore_index=True)
+print('Shape df_tt = %s' % str(df_tt.shape))
 df_tt.index = df_tt.id
 df_tt = df_tt.fillna(-1)
 df_tt = df_tt.replace('-unknown-', -1)
@@ -164,7 +164,7 @@ df_tt = df_tt.replace('-unknown-', -1)
 # Removing date_first_booking
 df_tt = df_tt.drop(['date_first_booking'], axis=1)
 # number of nulls
-df_tt = np.array([sum(r == -1) for r in df_tt.values])
+df_tt['n_null'] = np.array([sum(r == -1) for r in df_tt.values])
 # date_account_created
 # Computing year, month, day, week_number, weekday
 dac = np.vstack(df_tt['date_account_created'].astype(str).apply(lambda x: list(map(int, x.split('-')))).values)
@@ -254,6 +254,6 @@ X = vals[:piv_train]
 y = le.fit_transform(target.values)
 X_test = vals[piv_train:]
 print('Shape X = %s, Shape X_test = %s' % (X.shape, X_test.shape))
-X.to_cvs('../data/clean_X.cvs')
-y.to_cvs('../data/clean_y.cvs')
-X_test.to_cvs('../data/X_test.cvs')
+pd.DataFrame(y, columns=['country_destination']).to_csv(path_or_buf='../data/clean_y.csv')
+pd.DataFrame(X, columns=df_all.columns.values.tolist()).to_csv(path_or_buf='../data/clean_X.csv')
+pd.DataFrame(X_test, columns=df_all.columns.values.tolist()).to_csv(path_or_buf='../data/X_test.csv', columns=df_all.columns.values.tolist())
