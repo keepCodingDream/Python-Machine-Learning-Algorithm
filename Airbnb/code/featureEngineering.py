@@ -239,7 +239,10 @@ for f in ohe_feats:
 
 # -----------------Merging train-test with session data-----------------#
 df_all = pd.merge(df_tt, df_agg_sess, how='left')
+pd.DataFrame(df_all['id'], columns=['id']).to_csv(path_or_buf='../data/my_ids.csv', index=False)
+pd.DataFrame(target.values, columns=['country']).to_csv(path_or_buf='../data/my_country.csv', index=False)
 df_all = df_all.drop(['id'], axis=1)
+df_all = df_all.drop(['country_destination'], axis=1)
 df_all = df_all.fillna(-2)  # Missing features for samples without session data.
 # All types of null
 df_all['all_null'] = np.array([sum(r < 0) for r in df_all.values])
@@ -251,9 +254,10 @@ piv_train = len(target)
 vals = df_all.values
 le = LabelEncoder()
 X = vals[:piv_train]
-y = le.fit_transform(target.values)
+# y = le.fit_transform(target.values)
+y = target.values
 X_test = vals[piv_train:]
 print('Shape X = %s, Shape X_test = %s' % (X.shape, X_test.shape))
-pd.DataFrame(y, columns=['country_destination']).to_csv(path_or_buf='../data/clean_y.csv')
-pd.DataFrame(X, columns=df_all.columns.values.tolist()).to_csv(path_or_buf='../data/clean_X.csv')
-pd.DataFrame(X_test, columns=df_all.columns.values.tolist()).to_csv(path_or_buf='../data/X_test.csv', columns=df_all.columns.values.tolist())
+pd.DataFrame(y, columns=['country_destination']).to_csv(path_or_buf='../data/clean_y.csv', index=False)
+pd.DataFrame(X, columns=df_all.columns.values.tolist()).to_csv(path_or_buf='../data/clean_X.csv', index=False)
+pd.DataFrame(X_test, columns=df_all.columns.values.tolist()).to_csv(path_or_buf='../data/X_test.csv', index=False)
